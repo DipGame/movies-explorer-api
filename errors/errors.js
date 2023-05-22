@@ -3,7 +3,7 @@ const OK = 200;
 const INTERNAL_SERVERE_ERROR = 500;
 
 class NOT_FOUND extends Error {
-  constructor(statusCode, message) {
+  constructor(message) {
     super(message);
     this.statusCode = 404;
   }
