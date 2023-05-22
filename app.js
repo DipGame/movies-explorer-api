@@ -24,13 +24,13 @@ app.get('/crash-test', () => {
 
 app.use(helmet());
 
-app.use(RateLimit);
-
 app.use('/static', express.static('static'));
 
 app.use(cors());
 
 app.use(requestLogger);
+
+app.use(RateLimit);
 
 app.use(router);
 
