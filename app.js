@@ -1,10 +1,12 @@
 const bodyParser = require('body-parser');
 const express = require('express');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/Logger');
-const { CustomError, NOT_FOUND, INTERNAL_SERVERE_ERROR } = require('./errors/errors');
+const RateLimit = require('./middlewares/RateLimit');
+const CentralizedErrorHandler = require('./errors/CentralizedErrorHandler');
 const router = require('./routes');
 
 const app = express();
@@ -20,6 +22,10 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
+app.use(helmet());
+
+app.use(RateLimit);
+
 app.use('/static', express.static('static'));
 
 app.use(cors());
@@ -28,25 +34,11 @@ app.use(requestLogger);
 
 app.use(router);
 
-app.use('*', (req, res, next) => {
-  next(new CustomError(NOT_FOUND, 'Страница не найдена'));
-});
-
 app.use(errorLogger);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  const { statusCode = INTERNAL_SERVERE_ERROR, message } = err;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === INTERNAL_SERVERE_ERROR
-        ? 'Произошла ошибка на сервере'
-        : message,
-    });
-  next();
-});
+app.use(CentralizedErrorHandler);
 
 app.listen(3000, () => {
   console.log('SERVER ON');

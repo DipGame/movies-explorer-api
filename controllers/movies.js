@@ -1,7 +1,7 @@
 const Movie = require('../models/movie');
 
 const {
-  NOT_FOUND, CREATED, FORBIDDEN, CustomError, BAD_REQUEST,
+  NOT_FOUND, CREATED, FORBIDDEN, BAD_REQUEST,
 } = require('../errors/errors');
 
 const addMovie = (req, res, next) => {
@@ -18,7 +18,7 @@ const addMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new CustomError(BAD_REQUEST, 'Введены некорректные данные при добавлении видео'));
+        next(new BAD_REQUEST('Введены некорректные данные при добавлении видео'));
       } else {
         next(err);
       }
@@ -42,7 +42,7 @@ const deleteMovie = (req, res, next) => {
   Movie.findById(movieId)
     .then((movie) => {
       if (!movie) {
-        next(new CustomError(NOT_FOUND, 'Карточка не найдена'));
+        next(new NOT_FOUND('Карточка не найдена'));
       }
       const isEqual = movie.owner.equals(id);
       if (isEqual) {
@@ -53,7 +53,7 @@ const deleteMovie = (req, res, next) => {
           })
           .catch(next);
       } else {
-        next(new CustomError(FORBIDDEN, 'Эта карточка не ваша)'));
+        next(new FORBIDDEN('Эта карточка не ваша)'));
       }
     })
     .catch(next);
