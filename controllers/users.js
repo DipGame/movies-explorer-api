@@ -71,12 +71,12 @@ const patchUser = (req, res, next) => {
   const id = req.user._id;
   const { name, email } = req.body;
 
-  User.findOne({ email })
-    .then((find) => {
-      if (!find) {
+  User.findById(id)
+    .then((user) => {
+      if (user.email === email) {
         User.findByIdAndUpdate(id, { name, email }, { new: true, runValidators: true })
-          .then((user) => {
-            res.send(user);
+          .then((userUp) => {
+            res.send(userUp);
           })
           .catch((err) => {
             if (err.name === 'ValidationError') {
